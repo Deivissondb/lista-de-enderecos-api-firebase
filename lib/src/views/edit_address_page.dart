@@ -119,6 +119,8 @@ class _EditAddressPageState extends State<EditAddressPage> {
                   addressId: widget.address.addressId);
 
               searchAddress.updateAddress(updatedAddress);
+
+              // Navegar de volta após atualizar o endereço
               Navigator.pop(context, updatedAddress);
             },
           ),

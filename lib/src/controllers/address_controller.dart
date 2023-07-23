@@ -30,17 +30,8 @@ class SearchAddressController extends GetxController {
 
       if (res.statusCode == 200) {
         var data = convert.jsonDecode(convert.utf8.decode(res.bodyBytes));
-        // print('API funcionou?: $data');
         preference.value = SearchAddressModel.fromJson(data);
         setAddressValues();
-
-        if (preference.value != null) {
-          await saveAddressToFirestore(preference.value!);
-        } else {
-          clearTextFields();
-        }
-
-        // print(data);
       } else {
         clearTextFields();
         const snackBar = SnackBar(
@@ -163,7 +154,6 @@ class SearchAddressController extends GetxController {
       if (querySnapshot.docs.isNotEmpty) {
         var documentId = querySnapshot.docs[0].id;
         await firestore.collection('address').doc(documentId).delete();
-        // print('Endereço deletado com sucesso');
 
         const snackBar = SnackBar(
           content: Text('Endereço deletado com sucesso'),
@@ -177,7 +167,6 @@ class SearchAddressController extends GetxController {
 
       return false;
     } catch (e) {
-      // print('Erro ao deletar o endereço');
       const errorSnackBar = SnackBar(
         content: Text('Erro ao deletar o endereço'),
         backgroundColor: Colors.red,

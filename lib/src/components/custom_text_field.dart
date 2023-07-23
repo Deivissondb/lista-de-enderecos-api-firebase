@@ -7,6 +7,7 @@ class CustomTextField extends StatefulWidget {
   final IconData? icon;
   final TextEditingController? controller;
   final bool enabled;
+  final VoidCallback? onClear; // Função de callback para o botão "x"
 
   const CustomTextField({
     Key? key,
@@ -15,6 +16,7 @@ class CustomTextField extends StatefulWidget {
     this.icon,
     this.controller,
     this.enabled = true,
+    this.onClear, // Parâmetro opcional para o botão "x"
   }) : super(key: key);
 
   @override
@@ -58,7 +60,7 @@ class CustomTextFieldState extends State<CustomTextField> {
           ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 40,
+          height: 38,
           child: Stack(
             alignment: Alignment.centerRight,
             children: [
@@ -82,21 +84,21 @@ class CustomTextFieldState extends State<CustomTextField> {
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 ),
               ),
-              Positioned(
-                right: 0,
-                child: GestureDetector(
-                  onTap: () {
-                    _textEditingController.clear();
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      FontAwesomeIcons.xmark,
-                      size: 18,
+              if (widget.onClear !=
+                  null) // Verificação para mostrar o botão "x" apenas quando widget.onClear é fornecido
+                Positioned(
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: widget.onClear,
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        FontAwesomeIcons.xmark,
+                        size: 18,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

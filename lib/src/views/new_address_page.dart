@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:search_test_api/src/components/buttom_widget.dart';
@@ -22,105 +24,119 @@ class _NewAddressPageState extends State<NewAddressPage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'Novo Endereço',
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(12),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: WillPopScope(
+          // This WillPopScope will catch the back button press event
+          onWillPop: () async {
+            // Clear the text fields when the user presses the back button
+            searchAddress.clearTextFields();
+            return true; // Return true to allow the screen to be popped
+          },
+
+          child: Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: const Text(
+                'Novo Endereço',
+              ),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(12),
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: CustomTextField(
-                          controller: cepController,
-                          labelText: 'CEP',
-                          hint: '00000-000',
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: CustomTextField(
+                              controller: cepController,
+                              labelText: 'CEP',
+                              hint: '00000-000',
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: ButtomWidget(
+                              name: 'Buscar CEP',
+                              onClicked: () async {
+                                String cep = cepController.text;
+                                await searchAddress.getSearchAddress(cep);
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Dados Encontrados',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(57, 61, 80, 1),
+                        ),
+                        textAlign: TextAlign.left,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        child: ButtomWidget(
-                          name: 'Buscar CEP',
-                          onClicked: () async {
-                            String cep = cepController.text;
-                            await searchAddress.getSearchAddress(cep);
-                          },
-                        ),
-                      ),
+                    const SizedBox(height: 20),
+                    CustomTextField(
+                      labelText: 'Endereço',
+                      hint: 'Avenida Julho de Castilhos',
+                      controller: searchAddress.addressController,
+                    ),
+                    const SizedBox(height: 20),
+                    CustomTextField(
+                      labelText: 'Bairro',
+                      hint: 'Progresso',
+                      controller: searchAddress.neighborhoodController,
+                    ),
+                    const SizedBox(height: 20),
+                    CustomTextField(
+                      labelText: 'Cidade',
+                      hint: 'Porto Alegre',
+                      controller: searchAddress.cityController,
+                    ),
+                    const SizedBox(height: 20),
+                    CustomTextField(
+                      labelText: 'UF',
+                      hint: 'Rio Grande do Sul',
+                      controller: searchAddress.ufController,
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Dados Encontrados',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromRGBO(57, 61, 80, 1),
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                CustomTextField(
-                  labelText: 'Endereço',
-                  hint: 'Avenida Julho de Castilhos',
-                  controller: searchAddress.addressController,
-                ),
-                const SizedBox(height: 20),
-                CustomTextField(
-                  labelText: 'Bairro',
-                  hint: 'Progresso',
-                  controller: searchAddress.neighborhoodController,
-                ),
-                const SizedBox(height: 20),
-                CustomTextField(
-                  labelText: 'Cidade',
-                  hint: 'Porto Alegre',
-                  controller: searchAddress.cityController,
-                ),
-                const SizedBox(height: 20),
-                CustomTextField(
-                  labelText: 'UF',
-                  hint: 'Rio Grande do Sul',
-                  controller: searchAddress.ufController,
-                ),
-              ],
+              ),
+            ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(12),
+              child: ButtomWidget(
+                name: 'Salvar novo endereço',
+                onClicked: () async {
+                  if (searchAddress.preference.value != null) {
+                    await searchAddress.saveAddressToFirestore(
+                        searchAddress.preference.value!);
+                  }
+
+                  searchAddress.listAddress.add(searchAddress.preference.value);
+                  searchAddress.preference.value = null;
+                  searchAddress.preference.refresh();
+                  searchAddress.clearTextFields();
+                  Navigator.pop(context);
+                },
+              ),
             ),
           ),
-        ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(12),
-          child: ButtomWidget(
-            name: 'Salvar novo endereço',
-            onClicked: () {
-              searchAddress.listAddress.add(searchAddress.preference.value);
-              searchAddress.preference.value = null;
-              searchAddress.preference.refresh();
-              searchAddress.clearTextFields();
-              Navigator.pop(context);
-            },
-          ),
-        ),
-      ),
-    );
+        ));
   }
 }

@@ -43,6 +43,7 @@ class _ListAddressPageState extends State<ListAddressPage> {
             () => Column(
               children: [
                 CustomTextField(
+                  onClear: () => searchAddress.searchController.value.clear(),
                   controller: searchAddress.searchController.value,
                   icon: Icons.search,
                   hint: 'Pesquise pelo Endereço',
